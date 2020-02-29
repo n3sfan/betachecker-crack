@@ -91,8 +91,12 @@ public class Skidder implements Opcodes {
                             temp.add(new FrameNode(F_SAME, 0, null, 0, new Object[]{"java/lang/String"}));
                             temp.add(new InsnNode(ICONST_1));
                             temp.add(new VarInsnNode(ISTORE, 2));
+                            temp.add(new FieldInsnNode(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;"));
+                            temp.add(new LdcInsnNode("Nyannyan~~ Vikkong Team | Ayyvawe 4 minecraft"));
+                            temp.add(new MethodInsnNode(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false));
                             insnList.insertBefore(lin, temp);
                         } else if (lin.cst.equals("Checking your license key...")) {
+                            InsnList temp = new InsnList();
                             insnList.insert(lin.getNext(), new JumpInsnNode(GOTO, startLabel));
                         }
                     }
