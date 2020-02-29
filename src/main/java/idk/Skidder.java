@@ -29,7 +29,7 @@ public class Skidder implements Opcodes {
             String name = entry.getKey();
             ClassNode cn = entry.getValue();
 
-            if (name.equals("a/j")) {
+            if (name.equals("a/j") || name.equals("a/M") || name.equals("org/cW") || name.equals("a/aR")) {
                 preModify(cn);
                 postModify(cn);
             }
@@ -115,6 +115,8 @@ public class Skidder implements Opcodes {
                             InsnList temp = new InsnList();
                             temp.add(startLabel);
                             temp.add(new FrameNode(F_SAME, 0, null, 0, new Object[]{"java/lang/String"}));
+                            temp.add(new InsnNode(ICONST_1));
+                            temp.add(new VarInsnNode(ISTORE, 2));
                             insnList.insertBefore(lin, temp);
                         }
                     }
