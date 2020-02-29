@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'idea'
+}
+
+group 'idk'
+version '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation 'org.ow2.asm:asm:7.3.1'
+    implementation 'org.ow2.asm:asm-util:7.3.1'
+    implementation 'org.ow2.asm:asm-tree:7.3.1'
+    // lombok
+    compileOnly 'org.projectlombok:lombok:1.18.12'
+    annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    testCompileOnly 'org.projectlombok:lombok:1.18.12'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.12'
+}
