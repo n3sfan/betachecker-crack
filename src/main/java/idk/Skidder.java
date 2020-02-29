@@ -1,7 +1,6 @@
 package idk;
 
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 import java.io.IOException;
@@ -29,7 +28,7 @@ public class Skidder implements Opcodes {
             String name = entry.getKey();
             ClassNode cn = entry.getValue();
 
-            if (name.equals("a/j") || name.equals("a/M") || name.equals("org/cW") || name.equals("a/aR")) {
+            if (name.equals("a/M")) {
                 preModify(cn);
                 postModify(cn);
             }
@@ -37,34 +36,23 @@ public class Skidder implements Opcodes {
     }
 
     private static void preModify(ClassNode cn) {
-        for (MethodNode method : cn.methods) {
-            InsnList insnList = method.instructions;
+        if (cn.name.equals("a/M")) {
+            for (MethodNode method : cn.methods) {
+                InsnList insnList = method.instructions;
 
-            for (AbstractInsnNode ain : insnList) {
-                if (ain.getOpcode() == INVOKESTATIC) {
-                    MethodInsnNode min = (MethodInsnNode) ain;
+                for (AbstractInsnNode ain : insnList) {
+                    if (ain.getOpcode() == INVOKESTATIC) {
+                        MethodInsnNode min = (MethodInsnNode) ain;
 
-                    if (min.owner.equals(cn.name) && min.name.equals("a")
-                            && min.desc.equals("(II)Ljava/lang/String;")) {
-                        String s = deobString(cn, min);
+                        if (min.owner.equals(cn.name) && min.name.equals("a")
+                                && min.desc.equals("(II)Ljava/lang/String;")) {
+                            String s = deobString(cn, min);
 
-                        if (s != null) {
-                            insnList.insertBefore(ain, new InsnNode(POP2));
-                            insnList.set(ain, new LdcInsnNode(s));
+                            if (s != null) {
+                                insnList.insertBefore(ain, new InsnNode(POP2));
+                                insnList.set(ain, new LdcInsnNode(s));
+                            }
                         }
-                    } else if (cn.name.equals("a/j")
-                            && min.owner.equals("java/lang/System") && min.name.equals("exit")
-                            && min.getPrevious().getPrevious().getType() == AbstractInsnNode.LINE
-                            && ((LineNumberNode) min.getPrevious().getPrevious()).line == 12) {
-                        InsnList temp = new InsnList();
-                        temp.add(new FieldInsnNode(GETSTATIC, "java/lang/System", "out",
-                                "Ljava/io/PrintStream;"));
-                        temp.add(new LdcInsnNode("Vikkong team crack | Ayyrawe 4 minecraft"));
-                        temp.add(new MethodInsnNode(INVOKEVIRTUAL, "java/io/PrintStream", "println",
-                                "(Ljava/lang/String;)V", false));
-                        temp.add(new InsnNode(POP));
-                        insnList.insertBefore(min, temp);
-                        insnList.remove(min);
                     }
                 }
             }
@@ -72,37 +60,23 @@ public class Skidder implements Opcodes {
     }
 
     private static void postModify(ClassNode cn) {
-        if (cn.name.equals("a/j")) {
+        if (cn.name.equals("a/M")) {
+            LabelNode startLabel = new LabelNode();
+
             for (MethodNode method : cn.methods) {
                 InsnList insnList = method.instructions;
-                LabelNode startLabel = null;
 
                 for (AbstractInsnNode ain : insnList) {
-                    if (ain.getOpcode() == RETURN
-                            && ain.getPrevious().getPrevious().getType() == AbstractInsnNode.LINE
-                            && ((LineNumberNode) ain.getPrevious().getPrevious()).line == 115) {
-                        InsnList tempList = new InsnList();
-                        startLabel = new LabelNode();
-                        tempList.add(new JumpInsnNode(GOTO, startLabel));
-                        insnList.insertBefore(ain, tempList);
-                    } else if (ain.getOpcode() == INVOKESTATIC) {
+                    if (ain.getOpcode() == INVOKESTATIC) {
                         MethodInsnNode min = (MethodInsnNode) ain;
 
-                        if (min.owner.equals("a/a4") && min.name.equals("a") && min.desc.equals("(Ljava/lang/String;)Ljava/lang/String;")) {
+                        if (min.owner.equals("a/R") && min.name.equals("c") && min.desc.equals("(Ljava/lang/String;)Ljava/lang/String;")) {
                             String s = deobStringDecrypt(min);
 
                             if (s != null) {
                                 ((LdcInsnNode) min.getPrevious()).cst = s;
                                 insnList.remove(min);
                             }
-                        }
-                    } else if (ain.getOpcode() == LDC) {
-                        LdcInsnNode lin = (LdcInsnNode) ain;
-
-                        if (lin.cst.equals("exit")) {
-                            lin.cst = "toString";
-                        } else if (lin.cst.equals(Type.getType(System.class))) {
-                            lin.cst = Type.getType(Integer.class);
                         }
                     }
                 }
@@ -118,6 +92,8 @@ public class Skidder implements Opcodes {
                             temp.add(new InsnNode(ICONST_1));
                             temp.add(new VarInsnNode(ISTORE, 2));
                             insnList.insertBefore(lin, temp);
+                        } else if (lin.cst.equals("Checking your license key...")) {
+                            insnList.insert(lin.getNext(), new JumpInsnNode(GOTO, startLabel));
                         }
                     }
                 }
@@ -132,28 +108,28 @@ public class Skidder implements Opcodes {
         ClassNode deob = archive.classes.get(min.owner);
 
         for (MethodNode method : deob.methods) {
-            if (method.desc.equals("(Lorg/d;)Lorg/d;")) {
+            if (method.desc.equals("(Lorg/e;)Lorg/e;")) {
                 method.desc = "(Ljava/lang/Exception;)Ljava/lang/Exception;";
             }
 
             for (AbstractInsnNode ain : method.instructions) {
                 if (ain.getType() == AbstractInsnNode.FRAME) {
                     FrameNode fn = (FrameNode) ain;
-                    if (fn.stack != null && fn.stack.size() == 1 && fn.stack.get(0).equals("org/d")) {
+                    if (fn.stack != null && fn.stack.size() == 1 && fn.stack.get(0).equals("org/e")) {
                         fn.stack.clear();
                         fn.stack.add("java/lang/Exception");
                     }
                 } else if (ain.getType() == AbstractInsnNode.METHOD_INSN) {
                     MethodInsnNode min1 = (MethodInsnNode) ain;
 
-                    if (min1.desc.equals("(Lorg/d;)Lorg/d;")) {
+                    if (min1.desc.equals("(Lorg/e;)Lorg/e;")) {
                         min1.desc = "(Ljava/lang/Exception;)Ljava/lang/Exception;";
                     }
                 }
             }
 
             for (TryCatchBlockNode tcbn : method.tryCatchBlocks) {
-                if (tcbn.type.equals("org/d")) {
+                if (tcbn.type.equals("org/e")) {
                     tcbn.type = "java/lang/Exception";
                 }
             }
@@ -162,7 +138,7 @@ public class Skidder implements Opcodes {
         Class<?> clazz = AsmUtils.load(archive.classes.get(min.owner));
 
         try {
-            Method method = clazz.getDeclaredMethod("a", String.class);
+            Method method = clazz.getDeclaredMethod(min.name, String.class);
             String s = method.invoke(null, ((LdcInsnNode) min.getPrevious()).cst.toString()).toString();
             System.out.println(s);
             return s;
